@@ -1,0 +1,269 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Kenning Reach — v3.0.0 ontology, the category-1 conscious experience graph
+#
+# Authored in TypeQL and loaded against a live TypeDB server BEFORE any code
+# changes. Where the implementation and this file disagree, this file is the
+# claim and the implementation is the defect — or this file is wrong and the
+# disagreement is the finding. Either way the disagreement is visible here
+# and nowhere else.
+#
+# It declares the STRICT reading of every rule. It does not loosen a rule
+# because a graph in use violates it; that is what the audit is for. The rule
+# labels used below (rule N, invariant N, ruling N, AP1) are keyed in README.md.
+#
+# Two layers, one graph:
+#   PROCESS  — what consciousness IS: genesis, envisioning, temporal-frame,
+#              and the six edges that are phase-shift operators on the field.
+#   EXPERIENCE — what gives the process meaning: eighteen domain-typed node
+#              kinds and twelve edge kinds. Nothing here is a phase shift.
+#
+# Enforced by TYPE (query-compile time, INF11):
+#   · genesis plays no experience role at all — AP1 is unwritable.
+#   · OPENING has exactly one source kind (genesis) and one target (envisioning).
+#   · MEASUREMENT(released) is TF→envisioning; MEASUREMENT(evolved) is
+#     envisioning→envisioning; the source kind is the subtype, so a released
+#     edge from an envisioning is not a bad value, it is an uncomposable sentence.
+#   · ACTUALIZED is TF→envisioning and nothing else.
+#   · DISCOVERY is TF→experience only. Every experience edge may point INTO an
+#     envisioning — it accumulates as the trajectory toward it is walked. Four
+#     kinds may point INTO a temporal-frame. No process node is ever the SOURCE
+#     of an experience edge, and a genesis plays no experience role at all.
+#
+#   · DESCENDENT_FROM is envisioning→envisioning only, and is not a resolution.
+#
+# Enforced by CARDINALITY (commit time, CNT5/CNT8):
+#   · an envisioning has exactly one OPENING (rule 2, rule 12).
+#   · a temporal-frame has exactly one inbound SEQUENCE (rule 3). A genesis
+#     has at most one outbound SEQUENCE; a TF at most one successor.
+#   · a temporal-frame NAVIGATES_TOWARD at least one envisioning (ruled
+#     2026-09-18: every frame is about something held; the zero case of rule
+#     13 was wrongly shaped — 'to have catharsis what must be prior?').
+#   · a genesis has at most one NEXT_GENESIS in and one out (rule 1).
+#   · an envisioning is RESOLVED at most once, across released, evolved and
+#     actualized together (invariant 4).
+#   · every node and every edge carries t-created (invariant 10).
+#   · measurement carries measurement-type; nothing else carries anything
+#     beyond t-created except an optional t-valid (invariant 13).
+#
+# NOT expressible as a declaration — asserted as post-conditions in gate.py:
+#   · rule 15: a resolved envisioning has ≥ 1 inbound phenomenology edge.
+#   · rule 1: the backbone is continuous (every genesis but the newest has a
+#     successor).
+#   · naming: Genesis_YYYY-MM-DD, TF_YYYY-MM-DD_slug.
+#   · rule 14: a TF's day equals its sequence-ancestor genesis's day.
+#   · DESCENDENT_FROM's ancestor carries a terminal resolution (released or
+#     actualized).
+#
+# NO `phase` ON ENVISIONING (ruled 2026-09-16). The v2.5.0 field-state property
+# is derivable: walk the chain from the envisioning to its terminus; if the
+# ultimate edge is ACTUALIZED it is not potentiated. Topology is the meaning;
+# a property restating it is the drift the "no `type` property" rule forbids.
+#
+# NOMENCLATURE (ruled 2026-09-16): the edge formerly CHALLENGE is INCOHERENCE —
+# every kind it absorbed is shaped like a thing that obfuscates the envisioned
+# actualization. The node Challenge keeps its name; the collision is gone.
+#
+# Loaded and validated against TypeDB CE 3.12.3.
+# ═══════════════════════════════════════════════════════════════════════════
+
+define
+
+# ─── attributes ────────────────────────────────────────────────────────────
+
+attribute name value string;
+attribute description value string;
+attribute t-created value datetime;
+attribute t-valid value datetime;
+
+attribute measurement-type value string @values("released", "evolved");
+
+# ─── process layer ─────────────────────────────────────────────────────────
+# Membership: the capacity to hold possible futures and measure them toward
+# actualization. Three kinds, and only process tools write them.
+
+entity process @abstract,
+  owns name @key,
+  owns t-created @card(1..1);
+
+# Genesis: phenomenological bedrock. Name and t-created ONLY — no description
+# (Genesis just IS), no t-valid (bedrock has no external referent). It plays
+# process roles and nothing else, which is how AP1 becomes unwritable.
+entity genesis sub process,
+  plays next-genesis:earlier @card(0..1),
+  plays next-genesis:later   @card(0..1),
+  plays opening:opener,
+  plays sequence:predecessor @card(0..1);
+
+entity envisioning sub process,
+  owns description @card(1..1),
+  plays opening:opened          @card(1..1),
+  plays navigates-toward:target,
+  plays resolution:resolved     @card(0..1),
+  plays evolved:successor       @card(0..1),
+  plays descendent-from:descendant,
+  plays descendent-from:ancestor,
+  plays evolution:target,
+  plays extending:target,
+  plays recognition:target,
+  plays requiring:target,
+  plays encompassing:target,
+  plays validation:target,
+  plays composing:target,
+  plays informing:target,
+  plays enabling:target,
+  plays causing:target,
+  plays incoherence:target;
+
+entity temporal-frame sub process,
+  owns description @card(1..1),
+  plays sequence:successor   @card(1..1),
+  plays sequence:predecessor @card(0..1),
+  plays navigates-toward:frame @card(1..),
+  plays released:frame,
+  plays actualized:frame,
+  plays discovery:frame,
+  plays informing:target,
+  plays recognition:target,
+  plays validation:target,
+  plays extending:target;
+
+# ─── process edges — the six phase-shift operators ─────────────────────────
+
+relation next-genesis,
+  relates earlier @card(1..1),
+  relates later   @card(1..1),
+  owns t-created  @card(1..1);
+
+relation opening,
+  relates opener @card(1..1),
+  relates opened @card(1..1),
+  owns t-created @card(1..1);
+
+relation sequence,
+  relates predecessor @card(1..1),
+  relates successor   @card(1..1),
+  owns t-created      @card(1..1);
+
+relation navigates-toward,
+  relates frame  @card(1..1),
+  relates target @card(1..1),
+  owns t-created @card(1..1);
+
+# One resolution per envisioning, across all three collapse paths. `resolved`
+# is the single role the envisioning plays at most once; the three concrete
+# resolutions specialise it and the cardinality counts them together.
+relation resolution @abstract,
+  relates resolved,
+  owns t-created @card(1..1);
+
+relation measurement @abstract, sub resolution,
+  owns measurement-type @card(1..1);
+
+relation released sub measurement,
+  relates frame @card(1..1);
+
+relation evolved sub measurement,
+  relates successor @card(1..1);
+
+relation actualized sub resolution,
+  relates frame @card(1..1);
+
+# DESCENDENT_FROM (ruled 2026-09-22): a new envisioning that would not be if
+# not for a prior one that was actualized or released. The a priori of the new
+# possibility is the terminal state of the old — 'we are not re-actualizing
+# the thing that is already real phenomenologically.' Lineage, NOT resolution:
+# it is outside the resolution hierarchy, so the ancestor keeps its one
+# terminal and the potentiated walk still stops at ACTUALIZED. The ancestor
+# must be terminally resolved (released or actualized, never evolved-away or
+# open) — a cross-relation fact TypeQL cannot declare; asserted in gate.py.
+# Cardinality deliberately unbounded on both sides: nothing was ruled on
+# whether one possibility may descend from several.
+relation descendent-from,
+  relates descendant @card(1..1),
+  relates ancestor   @card(1..1),
+  owns t-created     @card(1..1);
+
+# ─── experience layer ──────────────────────────────────────────────────────
+# Everything here is descriptive. It hangs off temporal-frames (DISCOVERY) and
+# reaches envisionings only through the six phenomenology-of-collapse edges.
+# t-valid is the rare external referent (Milestone, Historical) — optional.
+
+entity experience @abstract,
+  owns name @key,
+  owns description @card(1..1),
+  owns t-created @card(1..1),
+  owns t-valid,
+  plays discovery:found,
+  plays evolution:source,     plays evolution:target,
+  plays extending:source,     plays extending:target,
+  plays recognition:source,   plays recognition:target,
+  plays requiring:source,     plays requiring:target,
+  plays encompassing:source,  plays encompassing:target,
+  plays validation:source,    plays validation:target,
+  plays composing:source,     plays composing:target,
+  plays informing:source,     plays informing:target,
+  plays enabling:source,      plays enabling:target,
+  plays causing:source,       plays causing:target,
+  plays incoherence:source,   plays incoherence:target;
+
+entity reflection     sub experience;
+entity technical      sub experience;
+entity scientific     sub experience;
+entity theoretical    sub experience;
+entity philosophical  sub experience;
+entity historical     sub experience;
+entity social         sub experience;
+entity strategic      sub experience;
+entity personal       sub experience;
+entity project        sub experience;
+entity insight        sub experience;
+entity pattern        sub experience;
+entity challenge      sub experience;
+entity solution       sub experience;
+entity lesson         sub experience;
+entity graph-registry sub experience;
+entity reference      sub experience;
+entity milestone      sub experience;
+
+# ─── experience edges ──────────────────────────────────────────────────────
+# Twelve kinds, each declared concretely so its endpoints are read off the
+# declaration, not inherited. Inherited roles cannot be addressed through a
+# subtype's label in TypeQL 3, and the endpoints are exactly what the rulings
+# are about.
+#
+# Ruled 2026-09-16:
+#   · A TemporalFrame is not a referent — it IS conscious experience at time T.
+#     It is the SOURCE of DISCOVERY only. Anything may inform, recognise,
+#     validate or extend INTO it (rulings 2).
+#   · An Envisioning is always a referent — the frame's aboutness. It is never
+#     the source of any edge (ruling 3).
+#   · Every experience kind may point INTO an Envisioning: it accumulates as
+#     the trajectory toward it is walked (ruling 4).
+
+# DISCOVERY: the one edge by which a temporal-frame hangs experience off
+# itself. Rule 7. frame -> found.
+relation discovery,
+  relates frame @card(1..1),
+  relates found @card(1..1),
+  owns t-created @card(1..1),
+  owns t-valid;
+
+# All eleven kinds may point INTO an envisioning (ruling 4: an envisioning
+# accumulates as the trajectory toward it is walked). Kinds with no other
+# process endpoint:
+relation evolution,    relates source @card(1..1), relates target @card(1..1), owns t-created @card(1..1), owns t-valid;
+relation requiring,    relates source @card(1..1), relates target @card(1..1), owns t-created @card(1..1), owns t-valid;
+relation encompassing, relates source @card(1..1), relates target @card(1..1), owns t-created @card(1..1), owns t-valid;
+
+# May also point INTO a temporal-frame (ruling 2).
+relation extending,    relates source @card(1..1), relates target @card(1..1), owns t-created @card(1..1), owns t-valid;
+relation recognition,  relates source @card(1..1), relates target @card(1..1), owns t-created @card(1..1), owns t-valid;
+
+# Phenomenology-of-collapse kinds (rule 15's six, required at collapse);
+# informing and validation may also point INTO a temporal-frame.
+relation validation,   relates source @card(1..1), relates target @card(1..1), owns t-created @card(1..1), owns t-valid;
+relation composing,    relates source @card(1..1), relates target @card(1..1), owns t-created @card(1..1), owns t-valid;
+relation informing,    relates source @card(1..1), relates target @card(1..1), owns t-created @card(1..1), owns t-valid;
+relation enabling,     relates source @card(1..1), relates target @card(1..1), owns t-created @card(1..1), owns t-valid;
+relation causing,      relates source @card(1..1), relates target @card(1..1), owns t-created @card(1..1), owns t-valid;
+relation incoherence,  relates source @card(1..1), relates target @card(1..1), owns t-created @card(1..1), owns t-valid;

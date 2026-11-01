@@ -1,0 +1,85 @@
+# -- Secrets and credentials --
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+credentials.*
+secrets.*
+
+# -- Project-specific private files --
+CLAUDE.md
+ENHANCEMENTS*.md
+REDESIGN.md
+ENHANCEMENTS_MAR_2.md
+TRANSFORMATION.mermaid
+*.mermaid
+dailycontext*
+
+# -- Claude Code / IDE config --
+.claude/
+.idea/
+
+# -- Images --
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.ico
+*.webp
+*.svg
+*.tiff
+
+# -- Python --
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# -- Virtual environments --
+.venv/
+venv/
+ENV/
+
+# -- IDE / Editor --
+.vscode/
+*.swp
+*.swo
+*~
+
+# -- OS --
+*.DS_Store
+Thumbs.db
+
+# -- Testing / Coverage --
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# -- Build artifacts --
+*.whl
+*.tar.gz
+*.sh
+*.xml
+
+# Working research and build drafts — local only, never pushed to GitHub.
+# Measurement dumps, vendor exports and scratch that has no business in a
+# release surface — and may carry credentials pulled from a live system.
+docs/research/
+
+# The operator discipline and env template for deploy/ are product: the README
+# and GETTING_STARTED depend on them, and the CLAUDE.md and .env.* rules above
+# would otherwise catch both.
+!deploy/CLAUDE.md
+!deploy/.env.example
+
+# The public build's scratch output and its local target path.
+publish/.staging/
+publish/.target
